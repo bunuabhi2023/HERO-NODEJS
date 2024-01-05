@@ -77,3 +77,31 @@ exports.getByAgreementNo = catchError(async(req, res) =>{
   return res.status(200).json({data});
 });
 
+
+exports.getVehicleData = catchError(async(req, res) =>{
+  const {agreementNo, regNo} = req.query;
+  const page = req.query.page?req.query.page:1;
+  pageSize = 10;
+  
+  const query = {};
+
+  if(agreementNo){
+    query.agreementNo = agreementNo;
+  }
+
+  if(regNo){
+    query.regNo = regNo;
+  }
+  const skip = (page - 1) * pageSize;
+  const responseData = await VehicleData.find(query).skip(skip).limit(pageSize).exec();
+
+  const totalRecords = await VehicleData.countDocuments(query);
+
+  return res.status(200).json({
+    data: responseData,
+    totalPages: Math.ceil(totalRecords / pageSize),
+    currentPage: page,
+  });
+
+});
+

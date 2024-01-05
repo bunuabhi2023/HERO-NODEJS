@@ -39,6 +39,8 @@ router.post("/change-password", auth, userController.updatePassword);
 //Vehicle Data Route//
 router.post("/upload", auth, upload.single("file"), vehicleController.uploadFile);
 router.get("/get-details-by-agreement/:agreementNo",  vehicleController.getByAgreementNo);
+router.get("/get-vehicle-data", auth, vehicleController.getVehicleData);
+router.post("/insert-detail", auth, vehicleController.createVehicleRecord);
 
 
 //Transaction Route//
