@@ -5,6 +5,7 @@ const util = require('util');
 const appendFile = util.promisify(fs.appendFile);
 const nodemailer = require('nodemailer');
 
+
 function generateReceiptPdf(loanNo, customerName, amount, trasactionId, transactiondatetime, product, trasactionStatus) {
     const doc = new PDFDocument();
 
@@ -27,31 +28,27 @@ function generateReceiptPdf(loanNo, customerName, amount, trasactionId, transact
     // Set the initial position for the table
     let yPosition = 200;
 
-    // Draw the table
-    table.headers.forEach((header, i) => {
-        doc.text(header, i % 2 === 0 ? 50 : 250, yPosition, { continued: true, width: 150 });
-        if (i % 2 !== 0) {
-            yPosition += 20;
-        }
-    });
+    // Draw the table headers and outer borders
+    doc.rect(50, yPosition - 10, 200, 20).stroke();
+    doc.rect(250, yPosition - 10, 200, 20).stroke();
+    doc.text(table.headers[0], 50, yPosition, { width: 200, align: 'center' });
+    doc.text(table.headers[1], 250, yPosition, { width: 200, align: 'center' });
 
-    // Draw the rows
-    table.rows.forEach((row, i) => {
-        doc.text(row[0], i % 2 === 0 ? 50 : 250, yPosition, { continued: true, width: 150 });
-        doc.text(row[1], i % 2 === 0 ? 200 : 400, yPosition, { continued: true, width: 150 });
-        if (i % 2 !== 0) {
-            yPosition += 20;
-        }
-    });
+    // Increment yPosition
+    yPosition += 20;
 
-    // Draw borders
+    // Draw the rows with outer borders
     table.rows.forEach((row, i) => {
-        if (i % 2 === 0) {
-            doc.rect(50, yPosition - 10, 200, 20).stroke();
-        } else {
-            doc.rect(250, yPosition - 10, 200, 20).stroke();
-        }
-    })
+        const xPosition = i % 2 === 0 ? 50 : 250;
+        const width = 200;
+
+        doc.rect(xPosition, yPosition - 10, width, 20).stroke();
+        doc.text(row[0], xPosition, yPosition, { width, align: 'left', continued: true });
+        doc.text(row[1], xPosition + (i % 2 === 0 ? 0 : 100), yPosition, { width: 100, align: 'left' });
+
+        // Increment yPosition for the next row
+        yPosition += 20;
+    });
 
     return new Promise((resolve, reject) => {
         let chunks = [];
@@ -71,7 +68,7 @@ function generateReceiptPdf(loanNo, customerName, amount, trasactionId, transact
 
         doc.end();
     });
-};
+}
 
 exports.sendReceipt = async(req, res) =>{
     try {

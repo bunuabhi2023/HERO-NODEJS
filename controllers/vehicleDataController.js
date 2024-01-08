@@ -18,7 +18,7 @@ exports.uploadFile = catchError(async (req, res) => {
     for (const row of data) {
       const vehicleData = new VehicleData({
         agreementNo: row.ProposalNo,
-        customerName: row.customerName,
+        customerName: row.CustomerName?row.CustomerName:"",
         regNo: row.RegistrationNumber,
         bomBucket: row.BOMBucket,
         settlement: row.Settlement,
