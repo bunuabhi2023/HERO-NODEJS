@@ -78,20 +78,33 @@ exports.getByAgreementNo = catchError(async(req, res) =>{
 });
 
 
-exports.getVehicleData = catchError(async(req, res) =>{
-  const {agreementNo, regNo} = req.query;
-  const page = req.query.page?req.query.page:1;
-  pageSize = 10;
-  
-  const query = {};
+exports.getVehicleData = catchError(async (req, res) => {
+  const searchRegex = new RegExp(req.query.search, 'i');
+  const page = req.query.page ? parseInt(req.query.page) : 1;
+  const pageSize = 10;
 
-  if(agreementNo){
-    query.agreementNo = agreementNo;
-  }
+  const searchFields = [
+    'agreementNo',
+    'customerName',
+    'regNo',
+    'bomBucket',
+    'settlement',
+    'emiOs',
+    'address',
+    'phone',
+    'reference1Name',
+    'reference1Phone',
+    'reference2Name',
+    'reference2Phone',
+    'assetDescription',
+    'fatherName',
+    'fos'
+  ];
 
-  if(regNo){
-    query.regNo = regNo;
-  }
+  const query = {
+    $or: searchFields.map(field => ({ [field]: searchRegex }))
+  };
+
   const skip = (page - 1) * pageSize;
   const responseData = await VehicleData.find(query).skip(skip).limit(pageSize).exec();
 
@@ -102,6 +115,6 @@ exports.getVehicleData = catchError(async(req, res) =>{
     totalPages: Math.ceil(totalRecords / pageSize),
     currentPage: page,
   });
-
 });
+
 
